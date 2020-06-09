@@ -1,3 +1,4 @@
+
 ## Project Manager
 
 A simple project management app I created when I was first learning to use TypeScript. The app is written in OOP style, mostly using the Observer pattern to manage reactivity whenever the internal state of a class changed.
