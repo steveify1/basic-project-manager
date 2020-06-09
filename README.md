@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ## Project Manager
+=======
+#### Project Manager
+>>>>>>> 984eeeb5096e73ff1ab52e9a35e0f4d768e5ba8f
 
 A simple project management app I created when I was first learning to use TypeScript. The app is written in OOP style, mostly using the Observer pattern to manage reactivity whenever the internal state of a class changed.
 
