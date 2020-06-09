@@ -1,105 +1,111 @@
-/// <reference path="Project.ts" />
+import {
+  ISubscriber,
+  IObserver,
+} from '../interfaces/observerSubscriberInterface.js';
+import Project from './Project.js';
+import ICreator from '../interfaces/creatorInterface.js';
+import IProject from '../interfaces/projectInterface.js';
+import ProjectTemplate from './ProjectTemplate.js';
+import autobind from '../decorators/autobind.js';
 
-namespace App {
+/**
+ * Manages all in-project operations
+ */
+export default class ProjectManager implements ISubscriber, IObserver {
+  subscribers: ISubscriber[] = [];
+  private projects: Project[] = [];
+
+  constructor(
+    private projectCreator: ICreator,
+    private projectTemplateCreator: ICreator
+  ) {}
+
+  addSubscriber(subscriber: ISubscriber): void {
+    this.subscribers.push(subscriber);
+  }
+
+  broadcast(
+    project: Project,
+    action: string,
+    projectTemplate: ProjectTemplate
+  ): void {
+    this.subscribers.forEach((subscriber) => {
+      subscriber.recieveBroadcast(project, action, projectTemplate);
+    });
+  }
+
   /**
-   * Manages all in-project operations
+   * Creates a new project instance and return same.
+   * @param { IProject } fields form fields broadcasted from the ProjectForm observer
+   * @returns { Project } a Project object.
    */
-  export class ProjectManager implements ISubscriber, IObserver {
-    subscribers: ISubscriber[] = [];
-    private projects: Project[] = [];
+  createProject(fields: IProject): Project {
+    return this.projectCreator.create(
+      fields.title,
+      fields.description,
+      fields.people
+    );
+  }
 
-    constructor(
-      private projectCreator: ICreator,
-      private projectTemplateCreator: ICreator
-    ) {}
+  /**
+   * Updates a projecs state
+   */
+  updateProjectState(
+    projectId: string | number,
+    newState: 'active' | 'completed'
+  ) {
+    const project = this.projects.find(
+      (project) => Number(project.id) === Number(projectId)
+    )!;
 
-    addSubscriber(subscriber: ISubscriber): void {
-      this.subscribers.push(subscriber);
+    if (project.state === newState) {
+      return;
     }
 
-    broadcast(
-      project: Project,
-      action: string,
-      projectTemplate: ProjectTemplate
-    ): void {
-      this.subscribers.forEach((subscriber) => {
-        subscriber.recieveBroadcast(project, action, projectTemplate);
-      });
+    if (newState === 'active') {
+      project.markAsActive();
+    } else if (newState === 'completed') {
+      project.markAsComplete();
     }
 
-    /**
-     * Creates a new project instance and return same.
-     * @param { IProject } fields form fields broadcasted from the ProjectForm observer
-     * @returns { Project } a Project object.
-     */
-    createProject(fields: IProject): Project {
-      return this.projectCreator.create(
-        fields.title,
-        fields.description,
-        fields.people
-      );
-    }
+    const projectTemplate = this.setupProjectTemplate(project);
+    this.broadcast(project, 'move', projectTemplate);
+  }
 
-    /**
-     * Updates a projecs state
-     */
-    updateProjectState(
-      projectId: string | number,
-      newState: 'active' | 'completed'
-    ) {
-      const project = this.projects.find(
-        (project) => Number(project.id) === Number(projectId)
-      )!;
+  /**
+   * Creates and adds event listeners on a project Template
+   */
+  setupProjectTemplate(project: Project) {
+    const projectTemplate = this.projectTemplateCreator.create(
+      project
+    ) as ProjectTemplate;
 
-      if (project.state === newState) {
-        return;
-      }
-
-      if (newState === 'active') {
-        project.markAsActive();
-      } else if (newState === 'completed') {
+    projectTemplate.on('state-change', (project: Project) => {
+      if (project.state === 'active') {
         project.markAsComplete();
+      } else {
+        project.markAsActive();
       }
-
-      const projectTemplate = this.setupProjectTemplate(project);
+      // console.log(`State changed from  ${oldState} to ${project.state}`);
       this.broadcast(project, 'move', projectTemplate);
-    }
+    });
 
-    /**
-     * Creates and adds event listeners on a project Template
-     */
-    setupProjectTemplate(project: Project) {
-      const projectTemplate = this.projectTemplateCreator.create(
-        project
-      ) as ProjectTemplate;
+    projectTemplate.on('delete', (project: Project) => {
+      // console.log(`Deleting ` + project);
+      this.broadcast(project, 'delete', projectTemplate);
+    });
 
-      projectTemplate.on('state-change', (project: Project) => {
-        if (project.state === 'active') {
-          project.markAsComplete();
-        } else {
-          project.markAsActive();
-        }
-        // console.log(`State changed from  ${oldState} to ${project.state}`);
-        this.broadcast(project, 'move', projectTemplate);
-      });
+    return projectTemplate;
+  }
 
-      projectTemplate.on('delete', (project: Project) => {
-        // console.log(`Deleting ` + project);
-        this.broadcast(project, 'delete', projectTemplate);
-      });
-
-      return projectTemplate;
-    }
-
-    /**
-     * Recieves fields from project form and proceeds to call the `createProject` method.
-     */
-    @autobind
-    recieveBroadcast(fields: IProject) {
-      const project = this.createProject(fields);
-      const projectTemplate = this.setupProjectTemplate(project);
-      this.projects.push(project);
-      this.broadcast(project, 'new', projectTemplate);
-    }
+  /**
+   * Recieves fields from project form and proceeds to call the `createProject` method.
+   */
+  @autobind
+  recieveBroadcast(fields: IProject) {
+    const project = this.createProject(fields);
+    const projectTemplate = this.setupProjectTemplate(project);
+    this.projects.push(project);
+    this.broadcast(project, 'new', projectTemplate);
   }
 }

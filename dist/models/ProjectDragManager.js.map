@@ -1,0 +1,1 @@
+{"version":3,"file":"ProjectDragManager.js","sourceRoot":"","sources":["../../src/models/ProjectDragManager.ts"],"names":[],"mappings":"AAEA;;GAEG;AACH,MAAM,CAAC,OAAO,OAAO,kBAAkB;IACrC,YAAoB,cAA8B;QAA9B,mBAAc,GAAd,cAAc,CAAgB;IAAG,CAAC;IAEtD,gBAAgB,CACd,EAAmB,EACnB,QAAgC;QAEhC,IAAI,CAAC,cAAc,CAAC,kBAAkB,CAAC,EAAE,EAAE,QAAQ,CAAC,CAAC;IACvD,CAAC;CACF"}

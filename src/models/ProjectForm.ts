@@ -1,81 +1,88 @@
-namespace App {
-  /**
-   * @class ProjectForm
-   */
-  export class ProjectForm extends FormProcessor implements IObserver {
-    subscribers: ISubscriber[] = [];
-    form: HTMLFormElement;
-    title: HTMLInputElement;
-    description: HTMLInputElement;
-    people: HTMLInputElement;
+import {
+  IObserver,
+  ISubscriber,
+} from '../interfaces/observerSubscriberInterface.js';
+import FormProcessor from '../abstracts/FormProcessor.js';
+import { InputError } from '../interfaces/formValidatorInterface.js';
+import IProject from '../interfaces/projectInterface.js';
+import TemplateExtractor from '../utils/TemplateExtractor.js';
 
-    constructor(private templateExtractor: TemplateExtractor<HTMLFormElement>) {
-      super();
+/**
+ * @class ProjectForm
+ */
+export default class ProjectForm extends FormProcessor implements IObserver {
+  subscribers: ISubscriber[] = [];
+  form: HTMLFormElement;
+  title: HTMLInputElement;
+  description: HTMLInputElement;
+  people: HTMLInputElement;
 
-      this.form = this.templateExtractor.templateContentElement;
-      this.setFormSubmitEventHandler();
+  constructor(private templateExtractor: TemplateExtractor<HTMLFormElement>) {
+    super();
 
-      this.templateExtractor.fillTarget('afterbegin');
+    this.form = this.templateExtractor.templateContentElement;
+    this.setFormSubmitEventHandler();
 
-      this.title = document.querySelector('input#title')! as HTMLInputElement;
-      this.description = document.querySelector(
-        'textarea#description'
-      )! as HTMLInputElement;
-      this.people = document.querySelector('input#people')! as HTMLInputElement;
+    this.templateExtractor.fillTarget('afterbegin');
 
-      // Define Validation for all the fields
-      this.defineValidation();
-    }
+    this.title = document.querySelector('input#title')! as HTMLInputElement;
+    this.description = document.querySelector(
+      'textarea#description'
+    )! as HTMLInputElement;
+    this.people = document.querySelector('input#people')! as HTMLInputElement;
 
-    addSubscriber(subscriber: ISubscriber): void {
-      this.subscribers.push(subscriber);
-    }
+    // Define Validation for all the fields
+    this.defineValidation();
+  }
 
-    broadcast(): void {
-      const project: IProject = {
-        title: this.title.value,
-        description: this.description.value,
-        people: +this.people.value,
-      };
+  addSubscriber(subscriber: ISubscriber): void {
+    this.subscribers.push(subscriber);
+  }
 
-      this.subscribers.forEach((subscriber) => {
-        subscriber.recieveBroadcast(project);
-      });
-    }
+  broadcast(): void {
+    const project: IProject = {
+      title: this.title.value,
+      description: this.description.value,
+      people: +this.people.value,
+    };
 
-    defineValidation(): void {
-      this.addValidation(this.title, {
-        type: 'string',
-        required: true,
-        alias: 'title',
-      });
-      this.addValidation(this.description, {
-        type: 'string',
-        required: true,
-        alias: 'description',
-      });
-      this.addValidation(this.people, {
-        type: 'number',
-        required: true,
-        alias: 'people',
-      });
-    }
+    this.subscribers.forEach((subscriber) => {
+      subscriber.recieveBroadcast(project);
+    });
+  }
 
-    handleSubmit(event: Event) {
-      this.inputSchemas.forEach((schema) => {
-        const errorObj = this.inputErrors.find((inputError) => {
-          return (inputError as InputError).field === schema.inputField;
-        }) as InputError;
+  defineValidation(): void {
+    this.addValidation(this.title, {
+      type: 'string',
+      required: true,
+      alias: 'title',
+    });
+    this.addValidation(this.description, {
+      type: 'string',
+      required: true,
+      alias: 'description',
+    });
+    this.addValidation(this.people, {
+      type: 'number',
+      required: true,
+      alias: 'people',
+    });
+  }
 
-        schema.inputField.nextElementSibling!.textContent = errorObj
-          ? errorObj.errors[0]
-          : '';
-      });
+  handleSubmit(event: Event) {
+    this.inputSchemas.forEach((schema) => {
+      const errorObj = this.inputErrors.find((inputError) => {
+        return (inputError as InputError).field === schema.inputField;
+      }) as InputError;
 
-      if (this.inputErrors.length === 0) {
-        this.broadcast();
-        this.form.reset();
-      }
+      schema.inputField.nextElementSibling!.textContent = errorObj
+        ? errorObj.errors[0]
+        : '';
+    });
+
+    if (this.inputErrors.length === 0) {
+      this.broadcast();
+      this.form.reset();
     }
   }
 }
