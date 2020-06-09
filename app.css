@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+ul, li {
+  list-style-type: none;
+}
+
+main {
+  padding: 1em
+}
+
+main>h1 {
+  margin-bottom: 1.5em;
+}
+
+form, .project-list {
+  width: 100%;
+  max-width: 500px;
+}
+
+form {
+  margin-bottom: 3em;
+}
+
+.form-group {
+  margin-bottom: 1em;
+  display: grid;
+}
+
+.form-control {
+  padding: 0.5em;
+  font-size: 1.1rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  outline: none;
+  border-radius: 5px;
+  margin-top: 0.5em;
+}
+
+.form-control:focus {
+  /* outline: none; */
+  border: 1px solid green;
+  box-shadow: 0 0 5px green;
+}
+
+textarea {
+  min-height: 200px;
+}
+
+.form-group .error {
+  margin: 0;
+  display: block;
+  color: red;
+  font-size: 0.875rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  padding: 0.75em 1em;
+  opacity: 0.93;
+}
+
+button[type='submit'] {
+  background-color: green;
+}
+
+button:hover {
+  opacity: 1;
+}
+
+.btn {
+  text-transform: capitalize;
+}
+
+.btn-group .btn:not(:first-child) {
+  margin-left: 0.5em;
+}
+
+.state-btn {
+  background-color: blue;
+}
+
+.delete-btn {
+  background-color: red;
+}
+
+.project-list {
+  margin-bottom: 2em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  /* border-radius: 5px; */
+}
+
+.project-list ul {
+  padding: 1em 0.5em;
+}
+
+.project-list header {
+  color: #fff;
+  padding: 1em;
+}
+
+.project-list header h2 {
+  font-size: 1rem;
+}
+
+.project-list .project:not(:last-child) {
+  margin-bottom: 1em;
+}
+
+#active-project-list header {
+  background-color: rgb(6, 74, 138);
+}
+
+#completed-project-list header {
+  background-color: green;
+}
+
+#active-project-list .project h2 {
+  color: rgb(6, 74, 138);
+}
+
+#completed-project-list .project h2 {
+  color: green;
+}
+
+.project {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5em;
+  transition: all 0.4s ease;
+}
+
+.project:hover {
+  cursor: grab;
+}
+
+.project-title {
+  text-transform: capitalize;
+}
+
+.project-body {
+  margin: 0.75em 0;
+}
+
+.project-desc {
+  margin-bottom: 0.75em;
+}
+
+/* Drag and Drop */
+
+.dragging {
+  border: 1px solid blue;
+}
+
+.droppable .project:hover {
+  box-shadow: 0 1px 25px rgba(49, 49, 49, 0.2);
+}
+
+/* .dragging {
+  border: 1px solid blue;
+}
+
+.droppable {
+  border: 1px solid blue;
+} */
+
+#active-project-list.droppable {
+  border: 1px solid rgb(6, 74, 138);
+}
+
+#completed-project-list.droppable {
+  border: 1px solid green;
+}
